@@ -21,7 +21,7 @@ class FileService:
     def _buildPath(self, path: str) -> str:
         absolute_path = os.getcwd()
         parent_directory = os.path.join(absolute_path, os.pardir)
-        return os.path.join(absolute_path, 'model', path)
+        return os.path.join(absolute_path, path)
 
 
     encoding = 'UTF8'
