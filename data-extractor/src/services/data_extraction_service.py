@@ -1,15 +1,15 @@
-from text_normalizer import TextNormalizer
-from message import Message
-from message_type import MessageType
+from utils.text_normalizer import TextNormalizer
+from models.message import Message
+from enums.message_type import MessageType
 
 
-class DataPreparationService:
+class DataExtractionService:
     def __init__(self, normalizer: TextNormalizer) -> None:
-        self.normalizer = normalizer
+        self.normalizer: TextNormalizer = normalizer
 
 
-    def prepare_messages(self, messages):
-        results = []
+    def prepare_messages(self, messages) -> list[Message]:
+        results: list[Message] = []
         for message in messages:
             if message['type'] != 'message':
                 continue
@@ -24,7 +24,7 @@ class DataPreparationService:
             else:
                 continue
             
-            normalized_text = self.normalizer.normalize(text)
+            normalized_text: str = self.normalizer.normalize(text)
             results.append(Message(message['id'], normalized_text, message_type))
 
         return results
@@ -46,10 +46,10 @@ class DataPreparationService:
 
     def _is_long_message(self, text) -> bool:
         if isinstance(text, str):
-            return DataPreparationService.average_message_length <= len(text)
+            return DataExtractionService.average_message_length <= len(text)
         
         normalized_text = self.normalizer.normalize(text)
-        return DataPreparationService.average_message_length <= len(normalized_text)
+        return DataExtractionService.average_message_length <= len(normalized_text)
     
 
     average_message_length = 1000
