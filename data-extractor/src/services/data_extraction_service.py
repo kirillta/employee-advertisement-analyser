@@ -52,19 +52,16 @@ class DataExtractionService:
             if segment['type'] != 'hashtag':
                 continue
 
-            if segment['text'] in DataExtractionService.advertisement_tags:
+            if segment['text'] in self.ADVERTISEMENT_TAGS:
                 return True
             
         return False
 
 
     def _is_long_message(self, text) -> bool:
-        if isinstance(text, str):
-            return DataExtractionService.average_message_length <= len(text)
-        
         normalized_text = self.normalizer.normalize(text)
-        return DataExtractionService.average_message_length <= len(normalized_text)
+        return self.MINIMAL_CONTROL_SAMPLE_MESSAGE_LENGTH <= len(normalized_text)
     
 
-    average_message_length = 1000
-    advertisement_tags = { '#вакансия' }
+    MINIMAL_CONTROL_SAMPLE_MESSAGE_LENGTH = 1000
+    ADVERTISEMENT_TAGS = { '#вакансия' }
