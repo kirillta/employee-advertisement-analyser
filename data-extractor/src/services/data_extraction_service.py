@@ -1,3 +1,4 @@
+from datetime import datetime
 from utils.text_normalizer import TextNormalizer
 from models.message import Message
 from enums.message_type import MessageType
@@ -8,26 +9,36 @@ class DataExtractionService:
         self.normalizer: TextNormalizer = normalizer
 
 
-    def prepare_messages(self, messages) -> list[Message]:
+    def prepare_messages(self, tg_messages) -> list[Message]:
         results: list[Message] = []
-        for message in messages:
-            if message['type'] != 'message':
+        for tg_message in tg_messages:
+            if tg_message['type'] != 'message':
                 continue
 
-            text = message['text']
-            
-            message_type = None
-            if self._is_advertisement(text):
-                message_type = MessageType.ADVERTISEMENT
-            elif self._is_long_message(text):
-                message_type = MessageType.PLAIN
-            else:
+            text = tg_message['text']
+            message_type = self._get_message_type(text)
+            if message_type == None:
                 continue
             
-            normalized_text: str = self.normalizer.normalize(text)
-            results.append(Message(message['id'], normalized_text, message_type))
+            results.append(self._build_message(tg_message, message_type))
 
         return results
+    
+
+    def _build_message(self, tg_message, message_type: MessageType) -> Message:
+        normalized_text: str = self.normalizer.normalize(tg_message['text'])
+        date = datetime.fromtimestamp(int(tg_message['date_unixtime']))
+        
+        return Message(tg_message['id'], date, message_type, normalized_text)
+    
+
+    def _get_message_type(self, text):
+        if self._is_advertisement(text):
+            return MessageType.ADVERTISEMENT
+        elif self._is_long_message(text):
+            return MessageType.PLAIN
+        else:
+            return None
 
 
     def _is_advertisement(self, text) -> bool:

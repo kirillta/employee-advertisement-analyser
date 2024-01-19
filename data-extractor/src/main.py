@@ -1,7 +1,7 @@
-from data_extraction_service import DataExtractionService
-from file_service import FileService
-from text_normalizer import TextNormalizer
-from message_encoder import MessageEncoder
+from services.data_extraction_service import DataExtractionService
+from services.file_service import FileService
+from utils.text_normalizer import TextNormalizer
+from encoders.message_encoder import MessageEncoder
 import os
 
 
