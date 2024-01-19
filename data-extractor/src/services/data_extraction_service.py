@@ -49,7 +49,10 @@ class DataExtractionService:
             if isinstance(segment, str):
                 continue
 
-            if segment['type'] == 'hashtag' and segment['text'] == '#вакансия':
+            if segment['type'] != 'hashtag':
+                continue
+
+            if segment['text'] in DataExtractionService.advertisement_tags:
                 return True
             
         return False
@@ -64,3 +67,4 @@ class DataExtractionService:
     
 
     average_message_length = 1000
+    advertisement_tags = { '#вакансия' }
