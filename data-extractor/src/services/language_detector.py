@@ -50,10 +50,13 @@ class LanguageDetector:
     
 
     def _to_list(self, result_frame, messages: list[Message]) -> list[Message]:
-        message_dictionary = self._to_dict(messages)
+        message_dictionary: dict[int, Message] = self._to_dict(messages)
 
         for row in result_frame.select('id', 'language.result').collect():
-            message = message_dictionary.get(row[0])
+            message: Message | None = message_dictionary.get(row[0])
+            if message is None:
+                continue
+            
             message.language = row[1][0]
 
         return list(message_dictionary.values())
