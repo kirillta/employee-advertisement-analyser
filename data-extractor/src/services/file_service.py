@@ -1,31 +1,21 @@
-import json
-from json import JSONEncoder
-import os
+from encoders.message_encoder import MessageEncoder
+from encoders.stats_encoder import StatsEncoder
+from services.file_provider import FileProvider
 
 
 class FileService:
-    def read(self, path: str):
-        absolute_path: str = self._build_path(path)
+    def __init__(self) -> None:
+        self.file_provider = FileProvider()
 
-        with open(absolute_path, 'r', encoding=self.ENCODING) as input_file:
-            return json.load(input_file)
-        
-    
-    def write(self, data, path='results.json', encoder=JSONEncoder) -> None:
-        absolute_path: str = self._build_path(path)
-        
-        with open(absolute_path, "w", encoding=self.ENCODING) as output_file:
-            json.dump(data, output_file, cls=encoder, ensure_ascii=False, indent=4)
-        
-    
-    def _build_path(self, path: str) -> str:
-        absolute_path = os.getcwd()
-        data_path = self._build_data_path(path)
-        return os.path.join(absolute_path, data_path)
+
+    def read_tg_messages(self, source_file_name: str):
+        file_content = self.file_provider.read(source_file_name)
+        return file_content['messages']
     
 
-    def _build_data_path(self, path) -> str:
-        return 'data' + os.sep + path
+    def write_messages(self, messages):
+        self.file_provider.write('results.json', messages, MessageEncoder)
 
 
-    ENCODING = 'UTF8'
+    def write_stats(self, stats):
+        self.file_provider.write('stats.json', stats, StatsEncoder)

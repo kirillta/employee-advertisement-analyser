@@ -1,12 +1,12 @@
 import os
 import sparknlp
 import sys
+from time import perf_counter
 from models.message import Message
-from services.data_extractor import DataExtractor
+from models.stats import Stats
+from services.advertisement_service import AdvertisementService
 from services.file_service import FileService
 from services.language_detector import LanguageDetector
-from utils.text_normalizer import TextNormalizer
-from encoders.message_encoder import MessageEncoder
 
 
 def detect_language(spark: sparknlp.SparkSession, messages: list[Message]) -> list[Message]:
@@ -14,11 +14,12 @@ def detect_language(spark: sparknlp.SparkSession, messages: list[Message]) -> li
     return language_detector.detect(messages)
 
 
-def get_messages(tg_messages) -> list[Message]:
-    text_normalizer = TextNormalizer()
-    data_extractor = DataExtractor(text_normalizer)
+def get_tg_messages(stats: Stats, file_service: FileService, argv: list[str]) -> tuple[list, Stats]:
+    source_file_name = argv[1]
+    tg_messages = file_service.read_tg_messages(source_file_name)
     
-    return data_extractor.process(tg_messages)
+    stats.source_message_count = len(tg_messages)
+    return tg_messages, stats
 
 
 def get_spark() -> sparknlp.SparkSession:
@@ -28,16 +29,28 @@ def get_spark() -> sparknlp.SparkSession:
     return sparknlp.start()
 
 
-def get_tg_messages(file_service, path):
-    file_content = file_service.read(path)
-    return file_content['messages']
+def main(argv: list[str]):
+    stats = Stats()
+    
+    file_service = FileService()
+    tg_messages, stats = get_tg_messages(stats, file_service, argv)
+    
+    advertisement_service = AdvertisementService()
+    total_advertisements = advertisement_service.process(tg_messages)
+    stats.total_advertisement_count = len(total_advertisements)
+
+    # spark = get_spark()
+    # messages = detect_language(spark, messages)
+
+    file_service.write_messages(total_advertisements)
+    file_service.write_stats(stats)
 
 
-file_service = FileService()
-tg_messages = get_tg_messages(file_service, sys.argv[1])
-messages = get_messages(tg_messages)
+time_start = perf_counter()
 
-spark = get_spark()
-messages = detect_language(spark, messages)
+if __name__ == '__main__':
+    main(sys.argv)
 
-file_service.write(messages, sys.argv[2], MessageEncoder)
+time_end = perf_counter()
+time_duration = time_end - time_start
+print(f'Took {time_duration} seconds')

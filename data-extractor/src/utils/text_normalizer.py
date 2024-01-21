@@ -1,5 +1,5 @@
 class TextNormalizer:
-    def normalize(self, text: str) -> str:
+    def normalize(text: str) -> str:
         if isinstance(text, str):
             return text
         

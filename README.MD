@@ -15,10 +15,9 @@
     * `> pip install numpy`
     * `> pip install pyspark`
     * `> pip install spark-nlp`
-6. Run the program `> python main.py 'source.json' 'results.json'` where arguments are the following:
+6. Run the program `> python main.py 'source.json'` where arguments are the following:
 
 |Argument      |Required|Description                |Comment|
 |--------------|--------|---------------------------|-------|
 |main.py       |Yes     |Path to the executable file|
 |'source.json' |Yes     |Source of analyzed messages|Enter the parameter in quotes to preserve the file extension
-|'results.json'|No      |Results file               |Enter the parameter in quotes to preserve the file extension. If the file does not exist, it will be created.

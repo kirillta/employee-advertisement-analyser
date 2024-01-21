@@ -2,15 +2,17 @@ from datetime import datetime
 from utils.text_normalizer import TextNormalizer
 from models.message import Message
 from enums.message_type import MessageType
+from utils.text_normalizer import TextNormalizer
 
 
-class DataExtractor:
-    def __init__(self, normalizer: TextNormalizer) -> None:
-        self.normalizer: TextNormalizer = normalizer
+class AdvertisementService:
+    def __init__(self) -> None:
+        pass
 
 
     def process(self, tg_messages) -> list[Message]:
         results: list[Message] = []
+
         for tg_message in tg_messages:
             if tg_message['type'] != 'message':
                 continue
@@ -26,7 +28,7 @@ class DataExtractor:
     
 
     def _build_message(self, tg_message, message_type: MessageType) -> Message:
-        normalized_text: str = self.normalizer.normalize(tg_message['text'])
+        normalized_text: str = TextNormalizer.normalize(tg_message['text'])
         date = datetime.fromtimestamp(int(tg_message['date_unixtime']))
         
         return Message(tg_message['id'], date, message_type, normalized_text)
@@ -59,7 +61,7 @@ class DataExtractor:
 
 
     def _is_long_message(self, text) -> bool:
-        normalized_text = self.normalizer.normalize(text)
+        normalized_text = TextNormalizer.normalize(text)
         return self.MINIMAL_CONTROL_SAMPLE_MESSAGE_LENGTH <= len(normalized_text)
     
 
