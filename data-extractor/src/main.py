@@ -23,6 +23,14 @@ def get_tg_messages(stats: Stats, file_service: FileService, argv: list[str]) ->
     return tg_messages, stats
 
 
+def process_advertisements(stats: Stats, tg_messages: list) -> tuple[list[Message], Stats]:
+    service = AdvertisementService()
+    messages = service.get(tg_messages)
+    
+    stats.total_advertisement_count = len(messages)
+    return messages, stats
+
+
 def process_control_messages(stats: Stats, file_service: FileService, tg_messages: list):
     service = ControlMessageService()
     messages = service.get(tg_messages)
@@ -47,15 +55,12 @@ def main(argv: list[str]):
     tg_messages, stats = get_tg_messages(stats, file_service, argv)
 
     stats = process_control_messages(stats, file_service, tg_messages)
-    
-    advertisement_service = AdvertisementService()
-    total_advertisements = advertisement_service.get(tg_messages)
-    stats.total_advertisement_count = len(total_advertisements)
+    advertisements, stats = process_advertisements(stats, tg_messages)
 
     # spark = get_spark()
-    # messages = detect_language(spark, messages)
+    # messages = detect_language(spark, advertisements)
 
-    file_service.write_advertisements(total_advertisements)
+    file_service.write_advertisements(advertisements)
     file_service.write_stats(stats)
 
 
