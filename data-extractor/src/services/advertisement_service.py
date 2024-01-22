@@ -1,6 +1,7 @@
 from enums.message_type import MessageType
 from models.message import Message
 from services.base_message_service import BaseMessageService
+from structures.message_table import MessageTable
 from utils.text_normalizer import TextNormalizer
 
 
@@ -21,3 +22,21 @@ class AdvertisementService(BaseMessageService):
                 results.append(self._build_message(tg_message, normalized_text, MessageType.ADVERTISEMENT))
 
         return results
+    
+
+    def remove_duplicates(self, messages: list[Message]) -> list[Message]:
+        results: list[Message] = []
+
+        message_table = MessageTable()
+        for message in messages:
+            message_table.set(message)
+        
+        duplicates = message_table.dump_duplicates()
+        for duplicate_list in duplicates:
+            print('\n')
+            for duplicate in duplicate_list:
+                print(duplicate.hash)
+
+            print('\n')
+
+        return messages

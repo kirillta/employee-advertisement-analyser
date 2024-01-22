@@ -25,9 +25,13 @@ def get_tg_messages(stats: Stats, file_service: FileService, argv: list[str]) ->
 
 def process_advertisements(stats: Stats, tg_messages: list) -> tuple[list[Message], Stats]:
     service = AdvertisementService()
+
     messages = service.get(tg_messages)
-    
     stats.total_advertisement_count = len(messages)
+
+    messages = service.remove_duplicates(messages)
+    stats.unique_advertisement_count = len(messages)
+
     return messages, stats
 
 
