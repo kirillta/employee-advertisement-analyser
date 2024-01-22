@@ -5,6 +5,7 @@ from time import perf_counter
 from models.message import Message
 from models.stats import Stats
 from services.advertisement_service import AdvertisementService
+from services.control_message_service import ControlMessageService
 from services.file_service import FileService
 from services.language_detector import LanguageDetector
 
@@ -22,6 +23,16 @@ def get_tg_messages(stats: Stats, file_service: FileService, argv: list[str]) ->
     return tg_messages, stats
 
 
+def process_control_messages(stats: Stats, file_service: FileService, tg_messages: list):
+    service = ControlMessageService()
+    messages = service.get(tg_messages)
+    
+    file_service.write_control_messages(messages)
+
+    stats.control_messages_count = len(messages)
+    return stats    
+
+
 def get_spark() -> sparknlp.SparkSession:
     os.environ['PYSPARK_PYTHON'] = sys.executable
     os.environ['PYSPARK_DRIVER_PYTHON'] = sys.executable
@@ -34,15 +45,17 @@ def main(argv: list[str]):
     
     file_service = FileService()
     tg_messages, stats = get_tg_messages(stats, file_service, argv)
+
+    stats = process_control_messages(stats, file_service, tg_messages)
     
     advertisement_service = AdvertisementService()
-    total_advertisements = advertisement_service.process(tg_messages)
+    total_advertisements = advertisement_service.get(tg_messages)
     stats.total_advertisement_count = len(total_advertisements)
 
     # spark = get_spark()
     # messages = detect_language(spark, messages)
 
-    file_service.write_messages(total_advertisements)
+    file_service.write_advertisements(total_advertisements)
     file_service.write_stats(stats)
 
 

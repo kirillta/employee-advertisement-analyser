@@ -13,8 +13,12 @@ class FileService:
         return file_content['messages']
     
 
-    def write_messages(self, messages):
+    def write_advertisements(self, messages):
         self.file_provider.write('results.json', messages, MessageEncoder)
+    
+
+    def write_control_messages(self, messages):
+        self.file_provider.write('control_messages.json', messages, MessageEncoder)
 
 
     def write_stats(self, stats):
