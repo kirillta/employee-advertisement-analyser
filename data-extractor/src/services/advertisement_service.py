@@ -32,11 +32,17 @@ class AdvertisementService(BaseMessageService):
             message_table.set(message)
         
         duplicates = message_table.dump_duplicates()
-        for duplicate_list in duplicates:
-            print('\n')
-            for duplicate in duplicate_list:
-                print(duplicate.hash)
+        for duplicate_bucket in duplicates:
+            initial_message = duplicate_bucket[0]
+            results.append(initial_message)
 
-            print('\n')
+            initial_date = initial_message.date
+            for duplicate in duplicate_bucket[1:]:
+                if 14 < (duplicate.date - initial_date).days:
+                    results.append(duplicate)
 
-        return messages
+                initial_date = duplicate.date
+
+        return results
+    
+
