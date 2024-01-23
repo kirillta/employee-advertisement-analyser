@@ -18,6 +18,7 @@ class TextNormalizer:
     @staticmethod
     def _remove_stop_symbols(text: set) -> str:
         return text.replace('\n', '. ') \
+            .replace(u"\u00A0", " ") \
             .replace('  ', ' ') \
             .replace(' .', '.') \
             .replace('...', '.') \
